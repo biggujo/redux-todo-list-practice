@@ -1,5 +1,8 @@
+import { createReducer } from "@reduxjs/toolkit";
+import {
+  addTask, deleteTask, setStatusFilter, toggleCompletedTask,
+} from "./actions.js";
 import { statusFilters } from "./constants.js";
-import { combineReducers } from "redux";
 
 const tasksInitialState = [
   {
@@ -29,53 +32,28 @@ const tasksInitialState = [
   },
 ];
 
+export const tasksReducer = createReducer(tasksInitialState, (builder) => {
+  builder
+  .addCase(addTask, (state, action) => {
+    state.push(action.payload);
+  })
+  .addCase(deleteTask, (state, action) => {
+    const idx = state.findIndex(({ id }) => id === action.payload.id);
+    state.splice(idx, 1);
+  })
+  .addCase(toggleCompletedTask, (state, action) => {
+    const idx = state.findIndex(({ id }) => id === action.payload.id);
+    state[idx].completed = !state[idx].completed;
+  });
+});
+
 const filtersInitialState = {
   status: statusFilters.all,
 };
 
-const tasksReducer = (state = tasksInitialState, action) => {
-  switch (action.type) {
-    case "tasks/addTask":
-      const newTask = action.payload;
-      return [
-        ...state,
-        newTask,
-      ];
-    case "tasks/deleteTask":
-      const deleteId = action.payload;
-      return state.filter(({ id }) => id !== deleteId);
-    case "tasks/toggleCompleted":
-      const toggleId = action.payload;
-      
-      return state.map((task) => {
-        if (task.id === toggleId) {
-          return {
-            ...task,
-            completed: !task.completed,
-          };
-        }
-
-        return task;
-      });
-    default:
-      return state;
-  }
-};
-
-const filtersReducer = (state = filtersInitialState, action) => {
-  switch (action.type) {
-    case "filters/setStatusFilter":
-      const newFilterValue = action.payload;
-      return {
-        ...state,
-        status: newFilterValue,
-      };
-    default:
-      return state;
-  }
-};
-
-export const rootReducer = combineReducers({
-  tasks: tasksReducer,
-  filters: filtersReducer,
+export const filtersReducer = createReducer(filtersInitialState, (builder) => {
+  builder
+  .addCase(setStatusFilter, (state, action) => {
+    state.status = action.payload.status;
+  });
 });
