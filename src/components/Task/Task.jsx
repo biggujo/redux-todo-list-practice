@@ -1,14 +1,14 @@
 import { MdClose } from "react-icons/md";
 import css from "./Task.module.css";
 import { useDispatch } from "react-redux";
-import { deleteTask, toggleCompleted } from "../../redux/actions.js";
+import { deleteTaskById, toggleTask } from "../../redux/operations.js";
 
 export const Task = ({ task }) => {
   const dispatch = useDispatch();
 
-  const handleToggleCompleted = () => dispatch(toggleCompleted(task.id));
+  const handleToggleCompleted = () => dispatch(toggleTask(task));
 
-  const handleDeleteTask = () => dispatch(deleteTask(task.id));
+  const handleDeleteTask = () => dispatch(deleteTaskById(task.id));
 
   return (<div className={css.wrapper}>
     <input
