@@ -1,85 +1,141 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { nanoid } from "nanoid";
+import api from "../../utils/api.js";
 
-const tasksInitialState = [
-  {
-    id: 0,
-    text: "Learn HTML and CSS",
-    completed: true,
-  },
-  {
-    id: 1,
-    text: "Get good at JavaScript",
-    completed: true,
-  },
-  {
-    id: 2,
-    text: "Master React",
-    completed: false,
-  },
-  {
-    id: 3,
-    text: "Discover Redux",
-    completed: false,
-  },
-  {
-    id: 4,
-    text: "Build amazing apps",
-    completed: false,
-  },
-];
+const tasksInitialState = {
+  items: [],
+  isLoading: false,
+  error: null,
+};
+
+export const fetchTasks = () => async (dispatch) => {
+  try {
+    dispatch(fetchTasksPending());
+
+    const response = await api.fetchTasks();
+
+    dispatch(fetchTasksResolved(response.data));
+  } catch (e) {
+    dispatch(fetchTasksRejected(e.message));
+  }
+};
+
+export const addTask = (text) => async (dispatch) => {
+  try {
+    dispatch(addTaskPending());
+
+    const response = await api.addTask(text);
+
+    dispatch(addTaskResolved(response.data));
+  } catch (e) {
+    dispatch(addTaskRejected(e.message));
+  }
+};
+
+export const deleteTaskById = (id) => async (dispatch) => {
+  try {
+    dispatch(deleteTaskPending());
+
+    await api.deleteTaskById(id);
+
+    dispatch(deleteTaskResolved(id));
+  } catch (e) {
+    dispatch(deleteTaskRejected(e.message));
+  }
+};
+
+export const toggleTaskById = (task) => async (dispatch) => {
+  try {
+    dispatch(toggleCompletedTaskByIdPending());
+
+    const response = await api.toggleTaskByTask(task);
+
+    dispatch(toggleCompletedTaskByIdResolved(response.data));
+  } catch (e) {
+    dispatch(toggleCompletedTaskByIdRejected(e.message));
+  }
+};
+
+const loadingSetter = (state, _) => {
+  state.isLoading = true;
+};
+
+const errorSetter = (state, action) => {
+  state.isLoading = false;
+  state.error = action.payload;
+};
 
 const tasksSlice = createSlice({
   name: "tasks",
   initialState: tasksInitialState,
   reducers: {
-    addTask: {
-      reducer(state, action) {
-        state.push(action.payload);
+    fetchTasksPending: loadingSetter,
+    fetchTasksResolved: {
+      reducer: (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload.items;
       },
-      prepare(text) {
-        return {
-          payload: {
-            id: nanoid(),
-            text,
-            completed: false,
-          },
-        };
-      },
+      prepare: (items) => ({
+        payload: {
+          items,
+        },
+      }),
     },
-    deleteTask: {
-      reducer(state, action) {
-        const index = state.findIndex(({ id }) => id === action.payload.id);
-        state.splice(index, 1);
+    fetchTasksRejected: errorSetter,
+    addTaskPending: loadingSetter,
+    addTaskResolved: {
+      reducer: (state, action) => {
+        state.items.push(action.payload.task);
       },
-      prepare(id) {
-        return {
-          payload: {
-            id,
-          },
-        };
-      },
+      prepare: (task) => ({
+        payload: {
+          task,
+        },
+      }),
     },
-    toggleCompletedTask: {
-      reducer(state, action) {
-        const index = state.findIndex(({ id }) => id === action.payload.id);
-        state[index].completed = !state[index].completed;
+    addTaskRejected: errorSetter,
+    deleteTaskPending: loadingSetter,
+    deleteTaskResolved: {
+      reducer: (state, action) => {
+        const index = state.items.findIndex(({ id }) => id === action.payload.id);
+        state.items.splice(index, 1);
       },
-      prepare(id) {
-        return {
-          payload: {
-            id,
-          },
-        };
-      },
+      prepare: (id) => ({
+        payload: {
+          id,
+        },
+      }),
     },
+    deleteTaskRejected: errorSetter,
+    toggleCompletedTaskByIdPending: loadingSetter,
+    toggleCompletedTaskByIdResolved: {
+      reducer: (state, action) => {
+        const index = state.items.findIndex(({ id }) => id === action.payload.task.id);
+
+        state.items[index] = action.payload.task;
+      },
+      prepare: (task) => ({
+        payload: {
+          task,
+        },
+      }),
+    },
+    toggleCompletedTaskByIdRejected: errorSetter,
   },
 });
 
 export const {
-  addTask,
-  deleteTask,
-  toggleCompletedTask,
+  fetchTasksPending,
+  fetchTasksResolved,
+  fetchTasksRejected,
+  addTaskPending,
+  addTaskResolved,
+  addTaskRejected,
+  deleteTaskPending,
+  deleteTaskResolved,
+  deleteTaskRejected,
+  toggleCompletedTaskByIdPending,
+  toggleCompletedTaskByIdResolved,
+  toggleCompletedTaskByIdRejected,
 } = tasksSlice.actions;
 
 export const tasksReducer = tasksSlice.reducer;
