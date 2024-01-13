@@ -3,12 +3,12 @@ import { AppBar } from "../AppBar/AppBar.jsx";
 import { TaskForm } from "../TaskForm/TaskForm.jsx";
 import { TaskList } from "../TaskList/TaskList.jsx";
 import { useDispatch, useSelector } from "react-redux";
-import { getTasksItems } from "../../redux/selectors.js";
+import { selectTasksItems } from "../../redux/selectors.js";
 import { useEffect } from "react";
 import { fetchTasks } from "../../redux/operations.js";
 
 export const App = () => {
-  const tasks = useSelector(getTasksItems);
+  const tasks = useSelector(selectTasksItems);
   const dispatch = useDispatch();
 
   useEffect(() => {
