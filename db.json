@@ -18,12 +18,12 @@
     {
       "id": 3,
       "text": "Discover Redux",
-      "completed": false
+      "completed": true
     },
     {
       "id": 4,
       "text": "Build amazing apps",
-      "completed": true
+      "completed": false
     },
     {
       "text": "123123",
