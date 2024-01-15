@@ -2,22 +2,21 @@ import { Layout } from "../Layout/Layout.jsx";
 import { AppBar } from "../AppBar/AppBar.jsx";
 import { TaskForm } from "../TaskForm/TaskForm.jsx";
 import { TaskList } from "../TaskList/TaskList.jsx";
-import { useDispatch, useSelector } from "react-redux";
-import { selectTasksItems } from "../../redux/selectors.js";
-import { useEffect } from "react";
-import { fetchTasks } from "../../redux/operations.js";
+import { useFetchTasksQuery } from "../../redux/query/tasksQuery.js";
 
 export const App = () => {
-  const tasks = useSelector(selectTasksItems);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchTasks());
-  }, []);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useFetchTasksQuery();
 
   return (<Layout>
     <AppBar/>
     <TaskForm/>
-    {tasks.length > 0 && <TaskList/>}
+    {isError && <p>{error.data}</p>}
+    {isLoading && <p>Loading...</p>}
+    {data && !isLoading && <TaskList items={data}/>}
   </Layout>);
 };
