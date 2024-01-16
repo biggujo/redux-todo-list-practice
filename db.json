@@ -13,7 +13,7 @@
     {
       "id": 2,
       "text": "Master React",
-      "completed": false
+      "completed": true
     },
     {
       "id": 3,
@@ -23,7 +23,7 @@
     {
       "id": 4,
       "text": "Build amazing apps",
-      "completed": true
+      "completed": false
     }
   ]
 }
